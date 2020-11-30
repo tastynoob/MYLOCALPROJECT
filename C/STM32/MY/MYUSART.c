@@ -83,18 +83,30 @@ int ReceiveString(USART_TypeDef *USARTx, byte *buffer)
 {
     int len = 0;
     int i = 2000;
-    while (!Available(USARTx))
-        ;
-    while (i)
+    while (!Available(USARTx));
+    while (i--)
     {
         if (Available(USARTx))
         {
             buffer[len++] = USART_ReceiveData(USARTx);
             i = 2000;
         }
-        else
+    }
+    buffer[len] = 0;
+    return len;
+}
+
+int WReceiveString(USART_TypeDef*USARTx,byte* buffer){
+    int len = 0;
+    int i = 2000;
+    int j = 0x005fffff;
+    while (!Available(USARTx) && j--);
+    while (i--)
+    {
+        if (Available(USARTx))
         {
-            i--;
+            buffer[len++] = USART_ReceiveData(USARTx);
+            i = 2000;
         }
     }
     buffer[len] = 0;

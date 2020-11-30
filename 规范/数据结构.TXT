@@ -1,0 +1,2 @@
+矩阵：
+<Matrix H:高 W:宽>"二进制float数据"</Matrix>
