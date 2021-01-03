@@ -5,6 +5,9 @@
 #include "system_stm32f10x.h"
 #include "SysTick.h"
 #include "stdio.h"
+#include "stm32f10x_exti.h"
+
+
 
 #define uchar unsigned char
 #define byte unsigned char
@@ -49,40 +52,53 @@
 
 typedef enum
 {
-    PA,
-    PB,
-    PC,
-    PD,
-    PE,
-    PF,
-    PG,
+    PA = (int)GPIOA,
+    PB = (int)GPIOB,
+    PC = (int)GPIOC,
+    PD = (int)GPIOD,
+    PE = (int)GPIOE,
 } MYGPIO_TYPE;
 typedef enum
 {
-    AIN = GPIO_Mode_AIN,
-    IN_FLOATING = GPIO_Mode_IN_FLOATING,
-    IPD = GPIO_Mode_IPD,
-    IPU = GPIO_Mode_IPU,
-    OUT_DD = GPIO_Mode_Out_OD,
-    OUT_PP = GPIO_Mode_Out_PP, //推挽输出
-    AF_OD = GPIO_Mode_AF_OD,
-    AF_PP = GPIO_Mode_AF_PP,
+    AIN = 0x0,//模拟输入
+    IN_FLOATING = 0x4,//浮空输入
+    IPD = 0x8,//下拉输入
+    IPU = 0x8,//上拉输入
+    OUT_PP = 0x0, //推挽输出
+    OUT_DD = 0x4,//开漏输出
+    AF_PP = 0x8,//复用推挽输出
+    AF_OD = 0xc,//复用开漏输出
 } MYGPIO_Mode;
 typedef enum
 {
-    _2MHz = GPIO_Speed_2MHz,
-    _10MHz = GPIO_Speed_10MHz,
-    _50MHz = GPIO_Speed_50MHz,
+    _in_ = 0x0,
+    _10MHz = 0x1,
+    _2MHz = 0x2,
+    _50MHz = 0x3,
 } MYGPIO_Speed;
 
 #define Delayms(ms) SysTick_DelaySync(ms)
 #define Delayus(us) SysTick_DelaySyncUs(us)
 
-//引脚模式设置
-void MYGPIO_SetGPMode(MYGPIO_TYPE type, MYGPIO_Mode mode, MYGPIO_Speed speed, uint8_t pin);
-//开启GPIO时钟
-void MYGPIO_SetClockOn(MYGPIO_TYPE type);
 
+//引脚模式设置
+void MYGPIO_ClockOn(MYGPIO_TYPE type);
+void MYGPIO_ModeSet(MYGPIO_TYPE type, uint8_t pin, MYGPIO_Mode mode, MYGPIO_Speed speed);
+
+
+
+void MYGPIO_ITConfig(MYGPIO_TYPE Px,int8_t pin,int pre,int sub);
+
+
+
+
+void EXTI0_IRQHandler();
+void EXTI1_IRQHandler();
+void EXTI2_IRQHandler();
+void EXTI3_IRQHandler();
+void EXTI4_IRQHandler();
+void EXTI9_5_IRQHandler();
+void EXTI15_10_IRQHandler();
 
 
 

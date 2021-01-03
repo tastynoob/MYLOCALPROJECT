@@ -8,33 +8,51 @@ int fputc(int ch,FILE* f){
     return ch;
 }
 
-void MYUSART_Config(USART_TypeDef *USARTx)
+void MYUSART_Init(USART_TypeDef *USARTx)
 {
     if (USARTx == USART1)
     {
-        MYGPIO_SetClockOn(PA);
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-        MYGPIO_SetGPMode(PA, AF_PP, _50MHz, 9);        //tx
-        MYGPIO_SetGPMode(PA, IN_FLOATING, _50MHz, 10); //rx
+        MYGPIO_ClockOn(PA);
+        MYGPIO_ModeSet(PA,9, AF_PP, _50MHz);        //tx
+        MYGPIO_ModeSet(PA,10, IN_FLOATING, _in_); //rx
     }
     else if (USARTx == USART2)
     {
-        MYGPIO_SetClockOn(PA);
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-        MYGPIO_SetGPMode(PA, AF_PP, _50MHz, 2);       //tx
-        MYGPIO_SetGPMode(PA, IN_FLOATING, _50MHz, 3); //rx
+        MYGPIO_ClockOn(PA);
+        MYGPIO_ModeSet(PA,2, AF_PP, _50MHz);       //tx
+        MYGPIO_ModeSet(PA,3, IN_FLOATING, _in_); //rx
     }
     else if (USARTx == USART3)
     {
-        MYGPIO_SetClockOn(PB);
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-        MYGPIO_SetGPMode(PB, AF_PP, _50MHz, 10);       //tx
-        MYGPIO_SetGPMode(PB, IN_FLOATING, _50MHz, 11); //rx
+        MYGPIO_ClockOn(PB);
+        MYGPIO_ModeSet(PB,10, AF_PP, _50MHz);       //tx
+        MYGPIO_ModeSet(PB,11, IN_FLOATING, _in_); //rx
     }
 }
-
-void MYUSART_Init(USART_TypeDef *USARTx, int baudRate)
+void MYUSART_ITSetOn(USART_TypeDef* USARTx,int pre,int sub){
+    NVIC_InitTypeDef NVIC_def;
+    if(USARTx == USART1){
+        NVIC_def.NVIC_IRQChannel = USART1_IRQn;
+    }
+    if(USARTx==USART2){
+        NVIC_def.NVIC_IRQChannel = USART2_IRQn;
+    }
+    if(USARTx==USART3){
+        NVIC_def.NVIC_IRQChannel = USART3_IRQn;
+    }
+    NVIC_def.NVIC_IRQChannelPreemptionPriority=pre;
+    NVIC_def.NVIC_IRQChannelSubPriority=sub;
+    NVIC_def.NVIC_IRQChannelCmd=ENABLE;
+    NVIC_Init(&NVIC_def);
+    USART_ITConfig(USARTx,USART_IT_RXNE,ENABLE);
+    USART_ITConfig(USARTx,USART_IT_ORE,DISABLE);
+}
+void MYUSART_Config(USART_TypeDef *USARTx, int baudRate)
 {
+    MYUSART_Init(USARTx);
     USART_InitTypeDef USART_Def;
     USART_Def.USART_BaudRate = baudRate;
     USART_Def.USART_WordLength = USART_WordLength_8b;
@@ -96,10 +114,10 @@ int ReceiveString(USART_TypeDef *USARTx, byte *buffer)
     return len;
 }
 
-int WReceiveString(USART_TypeDef*USARTx,byte* buffer){
+int WReceiveString(USART_TypeDef*USARTx,byte* buffer,int timeout){
     int len = 0;
     int i = 2000;
-    int j = 0x005fffff;
+    int j = timeout;
     while (!Available(USARTx) && j--);
     while (i--)
     {
@@ -112,3 +130,7 @@ int WReceiveString(USART_TypeDef*USARTx,byte* buffer){
     buffer[len] = 0;
     return len;
 }
+
+
+
+

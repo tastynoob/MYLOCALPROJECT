@@ -9,6 +9,7 @@ void MYADC_Init(ADC_TypeDef* ADCx){
     else if(ADCx == ADC2){
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2,ENABLE);
     }
+    
     RCC_ADCCLKConfig(RCC_PCLK2_Div6);//6分频12mhz
     ADC_DeInit(ADCx);//复位
     ADC_InitTypeDef ADC_InitStructure;
